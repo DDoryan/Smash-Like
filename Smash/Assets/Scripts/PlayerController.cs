@@ -1,5 +1,6 @@
 using System;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,13 +13,13 @@ public class PlayerController : MonoBehaviour
     private float gravityValue = -30;
 
     private Vector2 movementInput = Vector2.zero;
-    private bool jumped = false;
+    private bool initJump = false;
     private Rigidbody2D _rigidBody2D;
     private Transform _transform;
     public Transform _raycastOrigin;
     private Vector2 gravity = new Vector2(0f, -30f);
     private Vector2 counterForce = new Vector2(0f, 0f);
-    public float groundedDist = 0.006f;
+    public float groundedDist = 0.01f;
     private bool grounded = false;
     private bool nextToTheGround = false;
     private float nextToTheGroundDist = 1f;
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
     private float controllerDeadZone = 0.3f;
     private float maxSpeedX = 10f;
     private RaycastHit2D hit;
+    private bool secondJump = true;
 
     private void Awake()
     {
@@ -40,6 +42,10 @@ public class PlayerController : MonoBehaviour
     {
         hit = Physics2D.Raycast(_raycastOrigin.position, Vector3.down, 2);
         grounded = IsGrounded();
+        if (grounded && !secondJump) 
+        { 
+            secondJump = true;
+        }
         nextToTheGround = IsNextToTheGround();
         if (_rigidBody2D.velocity.y < 0f)
         {
@@ -55,14 +61,12 @@ public class PlayerController : MonoBehaviour
         {
             counterForce.x = -_rigidBody2D.velocity.x * 10f;
             _rigidBody2D.AddForce(counterForce);
-            Debug.Log("not move");
         }
         else
         {
             move.x = movementInput.x;
             move.y = 0;
             _rigidBody2D.AddForce(move * playerSpeed * Time.deltaTime, ForceMode2D.Impulse);
-            Debug.Log("move");
         }
 
         if (grounded && _rigidBody2D.velocity.y < 0)
@@ -83,12 +87,18 @@ public class PlayerController : MonoBehaviour
             _rigidBody2D.drag = 3f;
         }
 
-        if (jumped && grounded && Time.time > jumpTimer) 
+        if (initJump && Time.time > jumpTimer && (grounded || secondJump)) 
         {
+            move.Set(_rigidBody2D.velocity.x, 0);
+            _rigidBody2D.velocity = move;
             playerVelocity.y = jumpHeight * -3.0f * gravityValue;
             _rigidBody2D.AddForce(playerVelocity);
             jumpTimer = Time.time + jumpCooldown;
-            jumped = false;
+            initJump = false;
+            if(!grounded)
+            {
+                secondJump = false;
+            }
         }
     }
 
@@ -99,9 +109,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.performed && nextToTheGround)
+        if (context.performed && (nextToTheGround || secondJump))
         {
-            jumped = true;
+            initJump = true;
         }
     }
 
