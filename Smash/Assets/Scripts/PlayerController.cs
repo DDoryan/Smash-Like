@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 movementInput = Vector2.zero;
     private bool initJump = false;
+    private bool endJump = false;
     private Rigidbody2D _rigidBody2D;
     private Transform _transform;
     public Transform _raycastOrigin;
@@ -47,13 +48,14 @@ public class PlayerController : MonoBehaviour
             secondJump = true;
         }
         nextToTheGround = IsNextToTheGround();
-        if (_rigidBody2D.velocity.y < 0f)
-        {
-            gravity.y = -65f;
-        }
-        else
+        if (initJump)
         {
             gravity.y = -30f;
+        }
+        if (endJump)
+        {   
+            gravity.y = -65f;
+            endJump = false;
         }
 
         _rigidBody2D.AddForce(gravity);
@@ -112,6 +114,11 @@ public class PlayerController : MonoBehaviour
         if (context.performed && (nextToTheGround || secondJump))
         {
             initJump = true;
+        }
+        if (context.canceled)
+        {
+            endJump = true;
+            initJump = false;
         }
     }
 
