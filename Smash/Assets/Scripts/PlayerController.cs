@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     public Transform _raycastOrigin;
     private Vector2 gravity = new Vector2(0f, -30f);
     private Vector2 counterForce = new Vector2(0f, 0f);
-    public float groundedDist = 0.01f;
+    private float groundedDist = 0.01f;
     private bool grounded = false;
     private bool nextToTheGround = false;
     private bool doubleJump = true;
