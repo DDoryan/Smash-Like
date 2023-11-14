@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 gravity = new Vector2(0f, -30f);
     private Vector2 counterForce = new Vector2(0f, 0f);
     private float groundedDist = 0.01f;
+    private float playerScale = 0.36f;
+    private Vector2 playerOrientation;
     private bool grounded = false;
     private bool nextToTheGround = false;
     private bool doubleJump = true;
@@ -39,6 +41,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         _transform = transform;
+        _transform.localScale = new Vector3(playerScale, playerScale, playerScale);
+        playerOrientation = new Vector2(playerScale, playerScale);
         _rigidBody2D = GetComponent<Rigidbody2D>();
         ligthHitTimer = Time.time;
         heavyHitTimer = Time.time;
@@ -132,6 +136,15 @@ public class PlayerController : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>();
+        if (movementInput.x > controllerDeadZone) 
+        {
+            playerOrientation.Set(playerScale, playerScale);
+        }
+        else if (movementInput.x < -controllerDeadZone)
+        {
+            playerOrientation.Set(-playerScale, playerScale);
+        }
+        _transform.localScale = playerOrientation;
     }
 
     public void OnJump(InputAction.CallbackContext context)
