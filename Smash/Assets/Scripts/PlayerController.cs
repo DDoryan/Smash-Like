@@ -22,22 +22,46 @@ public class PlayerController : MonoBehaviour
     private bool grounded = false;
     private bool nextToTheGround = false;
     private bool doubleJump = true;
+    private bool isLigthHit = false;
+    private bool isHeavyHit = false;
     private float nextToTheGroundDist = 1f;
-    private float jumpCooldown = 0.5f;
-    private float jumpTimer;
+    private float inputEnableTimer = 0.2f;
+    private float ligthHitCooldown = 0.5f;
+    private float ligthHitTimer;
+    private float heavyHitCooldown = 0.5f;
+    private float heavyHitTimer;
     private Vector2 move = Vector2.zero;
     private float controllerDeadZone = 0.3f;
     private float maxSpeedX = 10f;
     private RaycastHit2D hit;
+    public Animator _Animator;
 
     private void Awake()
     {
         _transform = transform;
         _rigidBody2D = GetComponent<Rigidbody2D>();
-        jumpTimer = Time.time;
+        ligthHitTimer = Time.time;
+        heavyHitTimer = Time.time;
     }
 
-    void FixedUpdate()
+    private void Update()
+    {
+        if (isLigthHit && Time.time > ligthHitTimer)
+        {
+            _Animator.SetTrigger("ligthHit");
+            isLigthHit = false;
+            ligthHitTimer = Time.time + ligthHitCooldown;
+        }
+
+        if (isHeavyHit && Time.time > heavyHitTimer)
+        {
+            _Animator.SetTrigger("heavyHit");
+            isHeavyHit = false;
+            heavyHitTimer = Time.time + heavyHitCooldown;
+        }
+    }
+
+    private void FixedUpdate()
     {
         Debug.Log(gravity.y);
         hit = Physics2D.Raycast(_raycastOrigin.position, Vector3.down, 2);
@@ -97,7 +121,6 @@ public class PlayerController : MonoBehaviour
             _rigidBody2D.velocity = move;
             playerVelocity.y = jumpHeight * -3.0f * gravityValue;
             _rigidBody2D.AddForce(playerVelocity);
-            jumpTimer = Time.time + jumpCooldown;
             initJump = false;
             if (!grounded && doubleJump)
             {
@@ -120,6 +143,22 @@ public class PlayerController : MonoBehaviour
         if (context.canceled)
         {
             endJump = true;
+        }
+    }
+
+    public void OnLigthHit(InputAction.CallbackContext context)
+    {
+        if (context.performed && Time.time > (ligthHitTimer - inputEnableTimer))
+        {
+            isLigthHit = true;
+        }
+    }
+
+    public void OnHeavyHit(InputAction.CallbackContext context)
+    {
+        if (context.performed && Time.time > (heavyHitTimer - inputEnableTimer))
+        {
+            isHeavyHit = true;
         }
     }
 
