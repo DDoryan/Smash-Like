@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 570610901487971625}
   - component: {fileID: 2525055849524063951}
   - component: {fileID: 7705272259378108058}
+  - component: {fileID: 7032119714254221342}
+  - component: {fileID: 1029322849524714534}
   m_Layer: 0
   m_Name: Body
   m_TagString: Player
@@ -197,7 +199,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f549052b3fbb941914f947b2b63ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lastHit: 0
   _raycastOrigin: {fileID: 5193267032633044167}
+  playerScale: 0.36
   _Animator: {fileID: 6081956392954939263}
 --- !u!70 &2525055849524063951
 CapsuleCollider2D:
@@ -261,6 +265,30 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &7032119714254221342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436755453215695972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3079b8b136783f488e240e5d4d8df5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1029322849524714534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436755453215695972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b78f296fbe778f142ae9e3cc60230a4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3042745610582506289
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,7 +450,7 @@ GameObject:
   - component: {fileID: 2982671480684281225}
   m_Layer: 0
   m_Name: Square
-  m_TagString: ligthHit
+  m_TagString: Hit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -522,7 +550,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8935878033332785017}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -544,7 +572,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
