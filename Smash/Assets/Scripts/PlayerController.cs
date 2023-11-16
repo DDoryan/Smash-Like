@@ -1,10 +1,18 @@
 using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public enum Hit
+    {
+        ligth,
+        heavy
+    }
+    public Hit lastHit;
     private Vector3 playerVelocity;
+    private Vector2 bumpVelocity;
 
     private float playerSpeed = 100.0f;
     private float jumpHeight = 10.0f;
@@ -13,33 +21,72 @@ public class PlayerController : MonoBehaviour
     private Vector2 movementInput = Vector2.zero;
     private bool initJump = false;
     private bool endJump = false;
+    private DamageManager _damageManager;
     private Rigidbody2D _rigidBody2D;
     private Transform _transform;
     public Transform _raycastOrigin;
     private Vector2 gravity = new Vector2(0f, -30f);
     private Vector2 counterForce = new Vector2(0f, 0f);
-    public float groundedDist = 0.01f;
+    private float groundedDist = 0.01f;
+    public float playerScale = 0.36f;
+    private Vector2 playerOrientation;
     private bool grounded = false;
-    private bool nextToTheGround = false;
+    private bool nearToTheGround = false;
+    private bool isStun = false;
     private bool doubleJump = true;
+    private bool isLigthHit = false;
+    private bool isHeavyHit = false;
     private float nextToTheGroundDist = 1f;
-    private float jumpCooldown = 0.5f;
-    private float jumpTimer;
+    private float inputEnableTimer = 0.2f;
+    private float ligthHitCooldown = 0.5f;
+    private float ligthHitTimer;
+    private float heavyHitCooldown = 0.5f;
+    private float heavyHitTimer;
+    private float stunCooldown = 0.5f;
+    private float stunTimer;
     private Vector2 move = Vector2.zero;
     private float controllerDeadZone = 0.3f;
     private float maxSpeedX = 10f;
     private RaycastHit2D hit;
+    public Animator _Animator;
+    private float angleBump = 0.65f;
+
+
 
     private void Awake()
     {
         _transform = transform;
+        _transform.localScale = new Vector3(playerScale, playerScale, playerScale);
+        playerOrientation = new Vector2(playerScale, playerScale);
         _rigidBody2D = GetComponent<Rigidbody2D>();
-        jumpTimer = Time.time;
+        _damageManager = GetComponent<DamageManager>();
+        ligthHitTimer = Time.time;
+        heavyHitTimer = Time.time;
+        bumpVelocity = new Vector2(0f, 0f);
     }
 
-    void FixedUpdate()
+    private void Update()
     {
-        Debug.Log(gravity.y);
+        //Debug.Log(isStun);
+        if (isLigthHit && Time.time > ligthHitTimer)
+        {
+            _Animator.SetTrigger("ligthHit");
+            isLigthHit = false;
+            lastHit = Hit.ligth;
+            ligthHitTimer = Time.time + ligthHitCooldown;
+        }
+
+        if (isHeavyHit && Time.time > heavyHitTimer)
+        {
+            _Animator.SetTrigger("heavyHit");
+            isHeavyHit = false;
+            lastHit = Hit.heavy;
+            heavyHitTimer = Time.time + heavyHitCooldown;
+        }
+    }
+
+    private void FixedUpdate()
+    {
         hit = Physics2D.Raycast(_raycastOrigin.position, Vector3.down, 2);
         grounded = IsGrounded();
 
@@ -48,7 +95,7 @@ public class PlayerController : MonoBehaviour
             doubleJump = true;
         }
 
-        nextToTheGround = IsNextToTheGround();
+        nearToTheGround = IsNearToTheGround();
 
         if (initJump)
         {
@@ -59,18 +106,29 @@ public class PlayerController : MonoBehaviour
             gravity.y = -65f;
             endJump = false;
         }
-
         _rigidBody2D.AddForce(gravity);
-        if (movementInput.magnitude < controllerDeadZone && movementInput.magnitude > -controllerDeadZone)
+
+        if (isStun && Time.time > stunTimer)
         {
-            counterForce.x = -_rigidBody2D.velocity.x * 10f;
-            _rigidBody2D.AddForce(counterForce);
+            isStun = false;
         }
-        else
+        if (!isStun)
         {
-            move.x = movementInput.x;
-            move.y = 0;
-            _rigidBody2D.AddForce(move * playerSpeed * Time.deltaTime, ForceMode2D.Impulse);
+            if (movementInput.magnitude < controllerDeadZone && movementInput.magnitude > -controllerDeadZone)
+            {
+                counterForce.x = -_rigidBody2D.velocity.x * 10f;
+                _rigidBody2D.AddForce(counterForce);
+                Debug.Log("c'est la merde");
+            }
+            else
+            {
+                move.x = movementInput.x;
+                move.y = 0;
+                _rigidBody2D.AddForce(move * playerSpeed * Time.deltaTime, ForceMode2D.Impulse);
+            }
+
+            move.Set(Math.Clamp(_rigidBody2D.velocity.x, -maxSpeedX, maxSpeedX), _rigidBody2D.velocity.y);
+            _rigidBody2D.velocity = move;
         }
 
         if (grounded && _rigidBody2D.velocity.y < 0)
@@ -78,9 +136,6 @@ public class PlayerController : MonoBehaviour
             move.Set(_rigidBody2D.velocity.x, 0);
             _rigidBody2D.velocity = move;
         }
-
-        move.Set(Math.Clamp(_rigidBody2D.velocity.x, -maxSpeedX, maxSpeedX), _rigidBody2D.velocity.y);
-        _rigidBody2D.velocity = move;
 
         if (grounded)
         {
@@ -97,7 +152,6 @@ public class PlayerController : MonoBehaviour
             _rigidBody2D.velocity = move;
             playerVelocity.y = jumpHeight * -3.0f * gravityValue;
             _rigidBody2D.AddForce(playerVelocity);
-            jumpTimer = Time.time + jumpCooldown;
             initJump = false;
             if (!grounded && doubleJump)
             {
@@ -108,18 +162,55 @@ public class PlayerController : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        movementInput = context.ReadValue<Vector2>();
+        if (!isStun)
+        {
+            movementInput = context.ReadValue<Vector2>();
+            if (movementInput.x > controllerDeadZone)
+            {
+                playerOrientation.Set(playerScale, playerScale);
+            }
+            else if (movementInput.x < -controllerDeadZone)
+            {
+                playerOrientation.Set(-playerScale, playerScale);
+            }
+            _transform.localScale = playerOrientation;
+        }
     }
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.performed && (nextToTheGround || doubleJump))
+        if (!isStun)
         {
-            initJump = true;
+            if (context.performed && (nearToTheGround || doubleJump))
+            {
+                initJump = true;
+            }
+            if (context.canceled)
+            {
+                endJump = true;
+            }
         }
-        if (context.canceled)
+    }
+
+    public void OnLigthHit(InputAction.CallbackContext context)
+    {
+        if (!isStun)
         {
-            endJump = true;
+            if (context.performed && Time.time > (ligthHitTimer - inputEnableTimer))
+            {
+                isLigthHit = true;
+            }
+        }
+    }
+
+    public void OnHeavyHit(InputAction.CallbackContext context)
+    {
+        if (!isStun)
+        {
+            if (context.performed && Time.time > (heavyHitTimer - inputEnableTimer))
+            {
+                isHeavyHit = true;
+            }
         }
     }
 
@@ -132,12 +223,25 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    public bool IsNextToTheGround()
+    public bool IsNearToTheGround()
     {
         if (hit.collider != null && hit.collider.gameObject.tag == "ground" && Vector2.Distance(hit.point, _raycastOrigin.position) < nextToTheGroundDist)
         {
             return true;
         }
         return false;
+    }
+
+    public void Bump(float power, bool isDirRigth)
+    {
+        float damageReceived = _damageManager.GetDamageReceived();
+        bumpVelocity.Set((1 - angleBump) * power * damageReceived, angleBump * power * damageReceived);
+        if (!isDirRigth)
+        {
+            bumpVelocity.Set(bumpVelocity.x * -1, bumpVelocity.y);
+        }
+        isStun = true;
+        stunTimer = Time.time + stunCooldown;
+        _rigidBody2D.AddForce(bumpVelocity);
     }
 }
