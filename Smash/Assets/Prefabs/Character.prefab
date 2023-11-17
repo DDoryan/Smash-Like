@@ -36,8 +36,8 @@ Transform:
   m_LocalScale: {x: 0.36, y: 0.36, z: 0.36}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 5193267032633044167}
   - {fileID: 7360565738358826678}
+  - {fileID: 5193267032633044167}
   - {fileID: 4340798170940359802}
   m_Father: {fileID: 6541246991048055147}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -182,6 +182,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 3147bd16-1995-4ee6-8edf-0a2caf10ac4e
     m_ActionName: Player/HevayHit
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 570610901487971625}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnPause
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 7f93f702-e04a-4309-81e8-326ab6c5cfda
+    m_ActionName: Player/Pause[/XInputControllerWindows1/start]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Controller
   m_DefaultActionMap: Player
@@ -199,6 +215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f549052b3fbb941914f947b2b63ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDead: 0
   lastHit: 0
   _raycastOrigin: {fileID: 5193267032633044167}
   playerScale: 0.36
