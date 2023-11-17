@@ -694,7 +694,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 519496086}
-    m_SelectOnDown: {fileID: 1156255598}
+    m_SelectOnDown: {fileID: 909053669}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -920,7 +920,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -400}
+  m_AnchoredPosition: {x: 0, y: -200}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &909053667
@@ -976,7 +976,7 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 1156255598}
+    m_SelectOnUp: {fileID: 778353965}
     m_SelectOnDown: {fileID: 519496086}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
@@ -1274,7 +1274,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1156255598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1764,6 +1764,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39a1901cc17c6b94caa7fc99cdfa7612, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pauseMenu: {fileID: 0}
+  controlMenu: {fileID: 0}
+  gameOver: {fileID: 0}
+  pauseEventSystem: {fileID: 0}
+  controlsEventSystem: {fileID: 0}
+  gameOverEventSystem: {fileID: 0}
 --- !u!4 &1966291712
 Transform:
   m_ObjectHideFlags: 0
