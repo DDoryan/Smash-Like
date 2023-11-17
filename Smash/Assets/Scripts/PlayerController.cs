@@ -1,5 +1,4 @@
 using System;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +9,7 @@ public class PlayerController : MonoBehaviour
         ligth,
         heavy
     }
+    public bool isDead = false;
     public Hit lastHit;
     private Vector3 playerVelocity;
     private Vector2 bumpVelocity;
@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        Time.timeScale = 1;
         _transform = transform;
         _transform.localScale = new Vector3(playerScale, playerScale, playerScale);
         playerOrientation = new Vector2(playerScale, playerScale);
@@ -118,7 +119,6 @@ public class PlayerController : MonoBehaviour
             {
                 counterForce.x = -_rigidBody2D.velocity.x * 10f;
                 _rigidBody2D.AddForce(counterForce);
-                Debug.Log("c'est la merde");
             }
             else
             {
@@ -151,6 +151,7 @@ public class PlayerController : MonoBehaviour
             move.Set(_rigidBody2D.velocity.x, 0);
             _rigidBody2D.velocity = move;
             playerVelocity.y = jumpHeight * -3.0f * gravityValue;
+            Debug.Log(gravity);
             _rigidBody2D.AddForce(playerVelocity);
             initJump = false;
             if (!grounded && doubleJump)
@@ -243,5 +244,10 @@ public class PlayerController : MonoBehaviour
         isStun = true;
         stunTimer = Time.time + stunCooldown;
         _rigidBody2D.AddForce(bumpVelocity);
+    }
+
+    public void OnPause()
+    {
+        MenusManager.Instance.Pause();
     }
 }
